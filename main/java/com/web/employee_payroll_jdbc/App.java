@@ -2,6 +2,7 @@ package com.web.employee_payroll_jdbc;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -60,7 +61,7 @@ public class App
 		}
 	}
 	/**
-	 *  Execute a query
+	 *  Execute a query and read the data
 	 * @throws SQLException 
 	 */
 	public  int executeQuery(String sql) throws SQLException {
@@ -91,13 +92,24 @@ public class App
 			
 			
 	}
-	
+	/**
+	 *  updating the database 
+	 * @throws SQLException 
+	 */
 	public  void updateDatabase(String sql) throws SQLException {
 		System.out.println("Updating table in given database...");
 		stmt.executeLargeUpdate(sql);
+		
 	}
-	
-	
+	/**
+	 *  updating the database using prepared statement
+	 * @throws SQLException 
+	 */
+	public  void updateDatabaseUsingPreparedStatement(String sql) throws SQLException {
+		System.out.println("Updating table by using in given database...");
+		PreparedStatement p=con.prepareStatement(sql);
+		p.executeLargeUpdate();
+	}
 	
 	
 	
@@ -107,6 +119,7 @@ public class App
     	obj1.loadDriver();
     	obj1.listDriver();
     	obj1.getConnection();
+    	
 	    
 	    
 	    /**
@@ -115,18 +128,21 @@ public class App
 	   Scanner scan =new Scanner(System.in);
 	   System.out.println("Give sql command to retrive employee data");
 	   sql=scan.nextLine();
+	   
 	
 	    //sql = "SELECT  * FROM employee_payroll";
 	   obj1.executeQuery(sql);
 	  
 	   
-	   
+	   /**
+		 *  Execute a query and update the database
+		 */
 		
 	    System.out.println("Give sql command to update employee data");
 		// update="UPDATE employee_payroll set salary='30000' WHERE id= 27 ";
 	    String update=scan.nextLine();
-	    obj1.updateDatabase(update);
-		
+	   // obj1.updateDatabase(update);
+		obj1.updateDatabaseUsingPreparedStatement(update);
 		
 	
 }

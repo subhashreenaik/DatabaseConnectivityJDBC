@@ -23,8 +23,8 @@ public class AppTest
     {
     	App test=new App();
     	String sql="SELECT  * FROM employee_payroll";	
-    	System.out.println(test.executeQuery(sql));
-    	Assert.assertEquals(10, test.executeQuery(sql));
+    	int size=test.executeQuery(sql);
+    	Assert.assertEquals(10, size);
     	
     	
     	
