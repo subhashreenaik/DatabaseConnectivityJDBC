@@ -2,7 +2,9 @@ package com.web.employee_payroll_jdbc;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Enumeration;
 
 import com.mysql.cj.jdbc.Driver;
@@ -31,6 +33,7 @@ public class App
     /**	Register JDBC driver  **/
     	
 	Connection con = null;
+	Statement stmt = null;
 	try {
 		Class.forName(JDBC_DRIVER);
 	} catch (ClassNotFoundException e) {
@@ -53,6 +56,37 @@ public class App
 		e.printStackTrace();
 		
 	}
+	
+	/**
+	 *  Execute a query
+	 */
+	System.out.println("Creating statement...");
+	try {
+		stmt = con.createStatement();
+		String sql;
+		sql = "SELECT  name, salary, StartDate FROM employee_payroll";
+		ResultSet rs = stmt.executeQuery(sql);
+		
+	/**
+	* Extract data from result set*/	
+		while(rs.next()){
+			//Retrieve by column name
+			
+			int salary = rs.getInt("salary");
+			String name = rs.getString("name");
+			String StartDate = rs.getString("StartDate");
+			//Display values
+			
+			System.out.print("Salary : " + salary);
+			System.out.print(" name is: " + name);
+			System.out.println(" StartDate: " + StartDate);
+			}	
+		
+	} catch (SQLException e) {
+		
+		e.printStackTrace();
+	}
+	
 }
 
 
