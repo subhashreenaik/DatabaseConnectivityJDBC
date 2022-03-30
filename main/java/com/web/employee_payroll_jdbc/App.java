@@ -5,7 +5,10 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.Scanner;
 
 import com.mysql.cj.jdbc.Driver;
 
@@ -18,8 +21,11 @@ public class App
 	static final String jdbcURL = "jdbc:mysql://localhost:3306/payroll_service?useSSL=false";
 	static final String username = "root";
 	static final String password = "Shreemay@1";
+	static Connection con = null;
+	static Statement stmt = null;
+	static List<EmployeePayRollData> 	employeelist = new ArrayList<EmployeePayRollData>() ;
 	
-	private static void listDriver() {
+	private  void listDriver() {
 		Enumeration<java.sql.Driver> driverList = DriverManager.getDrivers();
 		while (driverList.hasMoreElements()) {
 			Driver driverClass = (Driver) driverList.nextElement();
@@ -28,66 +34,103 @@ public class App
 		
 	}
 	
-    public static void main( String[] args ) {
-   
-    /**	Register JDBC driver  **/
-    	
-	Connection con = null;
-	Statement stmt = null;
-	try {
-		Class.forName(JDBC_DRIVER);
-	} catch (ClassNotFoundException e) {
-		
-		e.printStackTrace();
-		System.out.println(" Cannot find database driver in the Classpath ");
+	/**	Register JDBC driver  **/
+	public  void loadDriver() {
+		try {
+			Class.forName(JDBC_DRIVER);
+		} catch (ClassNotFoundException e) {
+			
+			e.printStackTrace();
+			System.out.println(" Cannot find database driver in the Classpath ");
+		}
 	}
-	
-	listDriver();
 	
 	/**
 	 * Open connection
 	 */
-	System.out.println("Connecting to database...");
-	try {
-		con = DriverManager.getConnection(jdbcURL,username,password);
-		System.out.println("Connection is Successfull ::" + con);
-	} catch (SQLException e) {
-		System.out.println("not connected to database...");
-		e.printStackTrace();
-		
+	public  void getConnection() {
+		System.out.println("Connecting to database...");
+		try {
+			con = DriverManager.getConnection(jdbcURL,username,password);
+			System.out.println("Connection is Successfull ::" + con);
+		} catch (SQLException e) {
+			System.out.println("not connected to database...");
+			e.printStackTrace();
+			
+		}
 	}
-	
 	/**
 	 *  Execute a query
+	 * @throws SQLException 
 	 */
-	System.out.println("Creating statement...");
-	try {
-		stmt = con.createStatement();
-		String sql;
-		sql = "SELECT  name, salary, StartDate FROM employee_payroll";
-		ResultSet rs = stmt.executeQuery(sql);
-		
-	/**
-	* Extract data from result set*/	
-		while(rs.next()){
-			//Retrieve by column name
+	public  int executeQuery(String sql) throws SQLException {
+		System.out.println("Creating statement...");
+			stmt = con.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+			/**
+			* Extract data from result set*/
 			
-			int salary = rs.getInt("salary");
-			String name = rs.getString("name");
-			String StartDate = rs.getString("StartDate");
-			//Display values
+			while(rs.next()){
+				
+				//Retrieve by column name
+				int id=rs.getInt("id");
+				int salary = rs.getInt("salary");
+				String name = rs.getString("name");
+				String StartDate = rs.getString("StartDate");
+				employeelist.add(new EmployeePayRollData(id, name, salary));
+				
+				//Display values
+				
+				System.out.print("Id  : " + id);
+				System.out.print("Salary : " + salary);
+				System.out.print(" name is: " + name);
+				System.out.println(" StartDate: " + StartDate);
+				}	
+			//System.out.println(employeelist);
+			return employeelist.size();
 			
-			System.out.print("Salary : " + salary);
-			System.out.print(" name is: " + name);
-			System.out.println(" StartDate: " + StartDate);
-			}	
-		
-	} catch (SQLException e) {
-		
-		e.printStackTrace();
+			
 	}
 	
+	public  void updateDatabase(String sql) throws SQLException {
+		System.out.println("Updating table in given database...");
+		stmt.executeLargeUpdate(sql);
+	}
+	
+	
+	
+	
+	
+    public static void main( String[] args ) throws SQLException {
+    	App obj1 =new App();
+    	String sql;	
+    	obj1.loadDriver();
+    	obj1.listDriver();
+    	obj1.getConnection();
+	    
+	    
+	    /**
+		 *  Execute a query and Extract data from result set
+		 */
+	   Scanner scan =new Scanner(System.in);
+	   System.out.println("Give sql command to retrive employee data");
+	   sql=scan.nextLine();
+	
+	    //sql = "SELECT  * FROM employee_payroll";
+	   obj1.executeQuery(sql);
+	  
+	   
+	   
+		
+	    System.out.println("Give sql command to update employee data");
+		// update="UPDATE employee_payroll set salary='30000' WHERE id= 27 ";
+	    String update=scan.nextLine();
+	    obj1.updateDatabase(update);
+		
+		
+	
 }
+    
 
 
 	
